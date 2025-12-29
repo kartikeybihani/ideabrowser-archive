@@ -1,0 +1,35 @@
+name: Daily Idea Capture
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # runs every day at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npx playwright install --with-deps
+
+      - name: Run capture script
+        run: node scripts/capture.js
+
+      - name: Commit and push if changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add ideas
+          git commit -m "Archive idea for $(date +'%Y-%m-%d')" || echo "No changes"
+          git push
