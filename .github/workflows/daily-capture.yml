@@ -8,10 +8,14 @@ on:
 jobs:
   capture:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -28,8 +32,10 @@ jobs:
 
       - name: Commit and push if changes
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add ideas
           git commit -m "Archive idea for $(date +'%Y-%m-%d')" || echo "No changes"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
